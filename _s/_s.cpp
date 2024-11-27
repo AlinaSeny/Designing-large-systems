@@ -11,11 +11,12 @@ struct TString {
         return TString<c..., other...>{};
     }
 
-    constexpr bool operator==(const TString& other) const {
-        return std::strcmp(get(), other.get()) == 0;
+    template <char... other>
+    constexpr bool operator==(TString<other...>) const {
+        constexpr char str1[] = {other..., '\0'};
+        return std::strcmp(get(), str1) == 0;
     }
 };
-
 
 
 template <typename T, T... c>
@@ -27,6 +28,7 @@ constexpr auto operator""_s() {
 
 int main() {
     constexpr auto hello = "hello"_s + " world"_s;
-    static_assert(hello == "hello world"_s);
+    static_assert(!(hello == "hello worl"_s), "failed");
+    static_assert(hello == "hello world"_s, "failed");
     std::cout << hello.get() << std::endl;
 }
